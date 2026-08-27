@@ -1,12 +1,9 @@
 import express from "express";
-import sendEmail from "../config/mailer.js";
-console.log("CONTACT ROUTER FILE LOADED");
+import resend from "../config/mailer.js";
 
 const router = express.Router();
 
 router.post("/contact", async (req, res) => {
-    console.log("🔥 CONTACT API HIT");
-
     try {
         const { name, email, country, message } = req.body;
 
@@ -17,31 +14,54 @@ router.post("/contact", async (req, res) => {
             });
         }
 
-        await sendEmail.sendMail({
-            from: process.env.MAIL_USER,
-            to: process.env.ADMIN_EMAIL,
+        const { data, error } = await resend.emails.send({
+            from: "Master Export Pro <onboarding@resend.dev>",
+            to: [process.env.ADMIN_EMAIL],
             replyTo: email,
             subject: `New Contact Inquiry from ${name}`,
             html: `
-        <div style="font-family: Arial, sans-serif;">
-            <h2>New Contact Inquiry</h2>
-            <p><strong>Name:</strong> ${name}</p>
-            <p><strong>Email:</strong> ${email}</p>
-            <p><strong>Country:</strong> ${country}</p>
-            <h3>Message</h3>
-            <p>${message}</p>
-        </div>
-    `,
+                <div style="font-family: Arial, sans-serif;">
+                    <h2>New Contact Inquiry</h2>
+
+                    <p>
+                        <strong>Name:</strong> ${name}
+                    </p>
+
+                    <p>
+                        <strong>Email:</strong> ${email}
+                    </p>
+
+                    <p>
+                        <strong>Country:</strong> ${country}
+                    </p>
+
+                    <h3>Message</h3>
+
+                    <p>${message}</p>
+                </div>
+            `,
         });
 
-        res.json({
+        if (error) {
+            console.error("Resend Error:", error);
+
+            return res.status(500).json({
+                success: false,
+                message: error.message || "Failed to send email",
+            });
+        }
+
+        console.log("Email sent successfully:", data);
+
+        return res.json({
             success: true,
             message: "Message sent successfully",
         });
-    } catch (error) {
-        console.error("Mail Error:", error);
 
-        res.status(500).json({
+    } catch (error) {
+        console.error("Contact Error:", error);
+
+        return res.status(500).json({
             success: false,
             message: error instanceof Error
                 ? error.message
