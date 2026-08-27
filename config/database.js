@@ -1,8 +1,13 @@
 import mongoose from "mongoose";
 
-const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/tradeflow_erp";
+const MONGO_URI = process.env.MONGO_URI;
 
 export async function connectDatabase() {
-    await mongoose.connect(MONGO_URI);
-    console.log("MongoDB connected");
+    try {
+        await mongoose.connect(MONGO_URI);
+        console.log("MongoDB connected");
+    } catch (error) {
+        console.log("MongoDB connection failed",error)
+        process.exit(1);
+    }
 }

@@ -1,9 +1,12 @@
 import express from "express";
 import sendEmail from "../config/mailer.js";
+console.log("CONTACT ROUTER FILE LOADED");
 
 const router = express.Router();
 
 router.post("/contact", async (req, res) => {
+    console.log("🔥 CONTACT API HIT");
+
     try {
         const { name, email, country, message } = req.body;
 
@@ -40,7 +43,9 @@ router.post("/contact", async (req, res) => {
 
         res.status(500).json({
             success: false,
-            message: "Failed to send message",
+            message: error instanceof Error
+                ? error.message
+                : "Failed to send message",
         });
     }
 });
