@@ -8,7 +8,7 @@ const app = express();
 
 app.use(
     cors({
-        origin: "https://master-export-nine.vercel.app",
+        origin: ["https://master-export-nine.vercel.app",],
         methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         allowedHeaders: ["Content-Type", "Authorization"],
     })
